@@ -4,6 +4,7 @@ import { Blog } from './blog.entity';
 import { Repository } from 'typeorm';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
+import { BlogFilter } from './blog.filter';
 
 @Injectable()
 export class BlogService {
@@ -29,8 +30,14 @@ export class BlogService {
     return updatedBlog;
   }
 
-  async findAll(): Promise<Blog[]> {
-    return await this.blogRepository.find({ relations: ['comments'] });
+  async findAll(blogFilter: BlogFilter): Promise<Blog[]> {
+    return await this.blogRepository.find({
+      where: {
+        title: blogFilter?.title,
+        user: { username: blogFilter?.username },
+      },
+      relations: ['comments'],
+    });
   }
 
   async findOneByIdAsync(id: string): Promise<Blog> {

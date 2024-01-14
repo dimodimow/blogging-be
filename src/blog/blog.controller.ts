@@ -11,6 +11,7 @@ import {
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
+import { BlogFilter } from './blog.filter';
 
 @Controller('blog')
 export class BlogController {
@@ -22,8 +23,11 @@ export class BlogController {
   }
 
   @Get()
-  async get() {
-    return await this.blogService.findAll();
+  async get(@Query() blogFilter: BlogFilter) {
+    console.log(blogFilter);
+    return;
+
+    return await this.blogService.findAll(blogFilter);
   }
 
   @Get(':id')

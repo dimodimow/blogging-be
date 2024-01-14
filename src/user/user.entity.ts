@@ -1,4 +1,5 @@
 import { Base } from 'src/base/base.entity';
+import { Blog } from 'src/blog/blog.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
@@ -14,4 +15,7 @@ export class User extends Base {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Blog, (blog) => blog.user)
+  blogs: Blog[];
 }
