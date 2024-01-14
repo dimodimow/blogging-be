@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -26,12 +27,12 @@ export class BlogController {
   }
 
   @Delete(':id')
-  async delete(@Query('id') id: string) {
+  async delete(@Param('id') id: string) {
     return await this.blogService.remove(id);
   }
 
   @Put(':id')
-  async update(@Query('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
+  async update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
     return await this.blogService.update(id, updateBlogDto);
   }
 }

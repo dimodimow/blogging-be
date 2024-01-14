@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -20,7 +21,7 @@ export class CommentController {
   }
 
   @Get(':id')
-  async getById(@Query('id') id: string) {
+  async getById(@Param('id') id: string) {
     return await this.commentService.getByIdAsync(id);
   }
 
@@ -30,12 +31,12 @@ export class CommentController {
   }
 
   @Put(':id')
-  async update(@Query('id') id: string, @Body('content') content: string) {
+  async update(@Param('id') id: string, @Body('content') content: string) {
     return await this.commentService.updateAsync(id, content);
   }
 
   @Delete(':id')
-  async remove(@Query('id') id: string) {
+  async remove(@Param('id') id: string) {
     return await this.commentService.removeAsync(id);
   }
 }
