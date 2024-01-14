@@ -18,7 +18,7 @@ export class BlogController {
 
   @Post()
   async create(@Body() createBlogDto: CreateBlogDto) {
-    return await this.blogService.create(createBlogDto);
+    return await this.blogService.createAsync(createBlogDto);
   }
 
   @Get()
@@ -28,16 +28,16 @@ export class BlogController {
 
   @Get(':id')
   async findOneById(@Param('id') id: string) {
-    return await this.blogService.findOneById(id);
+    return await this.blogService.findOneByIdAsync(id);
   }
 
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    return await this.blogService.remove(id);
+    return await this.blogService.removeAsync(id);
   }
 
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
-    return await this.blogService.update(id, updateBlogDto);
+    return await this.blogService.updateAsync(id, updateBlogDto);
   }
 }

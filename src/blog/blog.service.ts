@@ -11,14 +11,14 @@ export class BlogService {
     @InjectRepository(Blog) private blogRepository: Repository<Blog>,
   ) {}
 
-  async create(createBlogDto: CreateBlogDto): Promise<Blog> {
+  async createAsync(createBlogDto: CreateBlogDto): Promise<Blog> {
     const newBlog = this.blogRepository.create(createBlogDto);
     await this.blogRepository.save(newBlog);
 
     return newBlog;
   }
 
-  async update(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+  async updateAsync(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
     const blog = await this.blogRepository.findOneBy({ id });
     const updatedBlog = this.blogRepository.merge(blog, updateBlogDto);
 
@@ -33,12 +33,12 @@ export class BlogService {
     return await this.blogRepository.find({ relations: ['comments'] });
   }
 
-  async findOneById(id: string): Promise<Blog> {
+  async findOneByIdAsync(id: string): Promise<Blog> {
     return await this.blogRepository.findOneBy({ id });
   }
 
-  async remove(id: string): Promise<void> {
-    const blog = await this.findOneById(id);
+  async removeAsync(id: string): Promise<void> {
+    const blog = await this.findOneByIdAsync(id);
 
     if (!blog) {
       throw new Error('Blog not found');

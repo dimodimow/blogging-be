@@ -11,7 +11,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async createAsync(createUserDto: CreateUserDto) {
     const password = await hashPassword(createUserDto.password);
 
     const newUser = this.userRepository.create({ ...createUserDto, password });
@@ -19,7 +19,7 @@ export class UserService {
     await this.userRepository.save(newUser);
   }
 
-  async findByUsername(username: string) {
+  async findByUsernameAsync(username: string) {
     return await this.userRepository.findOneBy({ username });
   }
 }

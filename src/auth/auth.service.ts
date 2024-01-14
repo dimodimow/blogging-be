@@ -12,7 +12,7 @@ export class AuthService {
   ) {}
 
   async signIn(signInRequestDto: SignInRequestDto) {
-    const user = await this.userService.findByUsername(
+    const user = await this.userService.findByUsernameAsync(
       signInRequestDto.username,
     );
 

@@ -17,7 +17,9 @@ export class CommentService {
   }
 
   async createAsync(createCommentDto: CreateCommentDto): Promise<Comment> {
-    const blog = await this.blogService.findOneById(createCommentDto.blogId);
+    const blog = await this.blogService.findOneByIdAsync(
+      createCommentDto.blogId,
+    );
 
     if (!blog) {
       throw new Error('Blog not found');
@@ -48,7 +50,7 @@ export class CommentService {
   }
 
   async getByBlogIdAsync(blogId: string) {
-    const blog = await this.blogService.findOneById(blogId);
+    const blog = await this.blogService.findOneByIdAsync(blogId);
 
     if (!blog) {
       throw new Error('Blog not found');
