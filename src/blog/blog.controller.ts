@@ -26,6 +26,11 @@ export class BlogController {
     return await this.blogService.findAll();
   }
 
+  @Get(':id')
+  async findOneById(@Param('id') id: string) {
+    return await this.blogService.findOneById(id);
+  }
+
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return await this.blogService.remove(id);
