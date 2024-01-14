@@ -66,6 +66,10 @@ export class CommentService {
   async removeAsync(id: string): Promise<void> {
     const comment = await this.getByIdAsync(id);
 
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
     await this.commentRepository.remove(comment);
   }
 }

@@ -40,6 +40,10 @@ export class BlogService {
   async remove(id: string): Promise<void> {
     const blog = await this.findOneById(id);
 
+    if (!blog) {
+      throw new Error('Blog not found');
+    }
+
     await this.blogRepository.remove(blog);
   }
 }
