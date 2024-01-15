@@ -24,9 +24,6 @@ export class BlogController {
 
   @Get()
   async get(@Query() blogFilter: BlogFilter) {
-    console.log(blogFilter);
-    return;
-
     return await this.blogService.findAll(blogFilter);
   }
 

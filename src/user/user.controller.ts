@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -12,7 +12,24 @@ export class UserController {
   }
 
   @Get()
-  async getByUsername(@Body('username') username: string) {
+  async getByUsername(@Query('username') username: string) {
     return await this.userService.findByUsernameAsync(username);
+  }
+
+  //todo: get id from token instead of username
+  @Put('addFavorite')
+  async addFavorite(
+    @Query('username') username: string,
+    @Body('blogId') blogId: string,
+  ) {
+    return await this.userService.addFavoriteAsync(username, blogId);
+  }
+
+  @Put('removeFavorite')
+  async removeFavorite(
+    @Query('username') username: string,
+    @Body('blogId') blogId: string,
+  ) {
+    return await this.userService.removeFavoriteAsync(username, blogId);
   }
 }

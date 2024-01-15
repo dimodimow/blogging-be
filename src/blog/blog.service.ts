@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blog.entity';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { BlogFilter } from './blog.filter';
@@ -31,13 +31,16 @@ export class BlogService {
   }
 
   async findAll(blogFilter: BlogFilter): Promise<Blog[]> {
-    return await this.blogRepository.find({
-      where: {
-        title: blogFilter?.title,
-        user: { username: blogFilter?.username },
-      },
-      relations: ['comments'],
-    });
+    const query = this.blogRepository
+      .createQueryBuilder('blog')
+      .leftJoinAndSelect('blog.comments', 'comment')
+      .leftJoinAndSelect('blog.user', 'user');
+
+    this.filterBlogs(query, blogFilter);
+
+    const blogs = await query.getMany();
+
+    return blogs;
   }
 
   async findOneByIdAsync(id: string): Promise<Blog> {
@@ -52,5 +55,22 @@ export class BlogService {
     }
 
     await this.blogRepository.remove(blog);
+  }
+
+  private filterBlogs(
+    queryBuilder: SelectQueryBuilder<Blog>,
+    filter: BlogFilter,
+  ): void {
+    if (filter.title) {
+      queryBuilder.andWhere('LOWER(blog.title) like LOWER(:title)', {
+        title: `%${filter.title}%`,
+      });
+    }
+
+    if (filter.username) {
+      queryBuilder.andWhere('LOWER(user.username) like LOWER(:username)', {
+        username: `%${filter.username}%`,
+      });
+    }
   }
 }

@@ -1,6 +1,13 @@
 import { Base } from 'src/base/base.entity';
 import { Blog } from 'src/blog/blog.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class User extends Base {
@@ -18,4 +25,8 @@ export class User extends Base {
 
   @OneToMany(() => Blog, (blog) => blog.user)
   blogs: Blog[];
+
+  @ManyToMany(() => Blog)
+  @JoinTable()
+  favorites: Blog[];
 }

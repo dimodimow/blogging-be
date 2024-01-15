@@ -1,7 +1,7 @@
 import { Base } from 'src/base/base.entity';
 import { Comment } from 'src/comment/comment.entity';
 import { User } from 'src/user/user.entity';
-import { Entity, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, ManyToMany } from 'typeorm';
 
 @Entity()
 export class Blog extends Base {
