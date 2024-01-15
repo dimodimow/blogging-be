@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { TagModule } from './tag/tag.module';
 import * as Joi from '@hapi/joi';
 
 @Module({
@@ -25,6 +26,7 @@ import * as Joi from '@hapi/joi';
         POSTGRES_DB: Joi.string().required(),
       }),
     }),
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],
