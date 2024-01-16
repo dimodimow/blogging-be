@@ -83,8 +83,10 @@ export class BlogService {
       });
     }
 
-    if (filter.tags) {
+    if (filter.tags && Array.isArray(filter.tags)) {
       queryBuilder.andWhere('tag.name IN (:...tags)', { tags: filter.tags });
+    } else if (filter.tags && [filter.tags].length === 1) {
+      queryBuilder.andWhere('tag.name = :tag', { tag: filter.tags });
     }
   }
 }
