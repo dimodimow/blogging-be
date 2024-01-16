@@ -17,10 +17,15 @@ export class TagService {
   }
 
   async getByNameAsync(name: string): Promise<Tag[]> {
-    return await this.tagRepository
-      .createQueryBuilder('tag')
-      .where('tag.name ILIKE :name', { name: `%${name}%` })
-      .getMany();
+    const query = this.tagRepository.createQueryBuilder('tag');
+
+    if (name) {
+      query.where('tag.name ILIKE :name', { name: `%${name}%` });
+    }
+
+    const tags = await query.getMany();
+
+    return tags;
   }
 
   async createAsync(name: string): Promise<Tag> {
@@ -42,6 +47,12 @@ export class TagService {
     await this.tagRepository.save(newTag);
 
     return newTag;
+  }
+
+  async removeAsync(names: string[]): Promise<void> {
+    const tags = await this.getByNamesAsync(names);
+
+    await this.tagRepository.remove(tags);
   }
 
   private async getOneByNameAsync(name: string): Promise<Tag> {

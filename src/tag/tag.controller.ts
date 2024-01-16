@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
 import { TagService } from './tag.service';
 
 @Controller('tag')
@@ -13,5 +13,10 @@ export class TagController {
   @Get()
   async getByName(@Body('name') name: string) {
     return await this.tagService.getByNameAsync(name);
+  }
+
+  @Delete()
+  async remove(@Body('names') names: string[]) {
+    return await this.tagService.removeAsync(names);
   }
 }
