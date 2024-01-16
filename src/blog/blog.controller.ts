@@ -12,6 +12,9 @@ import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { BlogFilter } from './blog.filter';
+import { PaginationDto } from 'src/base/dto/pagination.dto';
+import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
+import { Blog } from './blog.entity';
 
 @Controller('blog')
 export class BlogController {
@@ -23,8 +26,11 @@ export class BlogController {
   }
 
   @Get()
-  async get(@Query() blogFilter: BlogFilter) {
-    return await this.blogService.findAll(blogFilter);
+  async get(
+    @Query() blogFilter: BlogFilter,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<FindAllPaginatedResultDto<Blog>> {
+    return await this.blogService.findAll(blogFilter, paginationDto);
   }
 
   @Get(':id')

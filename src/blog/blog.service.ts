@@ -6,6 +6,8 @@ import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { BlogFilter } from './blog.filter';
 import { TagService } from 'src/tag/tag.service';
+import { PaginationDto } from 'src/base/dto/pagination.dto';
+import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
 
 @Injectable()
 export class BlogService {
@@ -39,7 +41,10 @@ export class BlogService {
     return updatedBlog;
   }
 
-  async findAll(blogFilter: BlogFilter): Promise<Blog[]> {
+  async findAll(
+    blogFilter: BlogFilter,
+    paginationDto: PaginationDto,
+  ): Promise<FindAllPaginatedResultDto<Blog>> {
     const query = this.blogRepository
       .createQueryBuilder('blog')
       .leftJoinAndSelect('blog.comments', 'comment')
@@ -48,9 +53,20 @@ export class BlogService {
 
     this.filterBlogs(query, blogFilter);
 
-    const blogs = await query.getMany();
+    const { limit, page } =
+      Object.keys(paginationDto).length === 0
+        ? new PaginationDto()
+        : paginationDto;
 
-    return blogs;
+    if (limit && page) {
+      query.skip((page - 1) * limit).take(limit);
+    }
+
+    const [blogs, count] = await query.getManyAndCount();
+
+    const pagesLeft = Math.ceil(count / limit) - page;
+
+    return new FindAllPaginatedResultDto<Blog>(blogs, count, pagesLeft);
   }
 
   async findOneByIdAsync(id: string): Promise<Blog> {

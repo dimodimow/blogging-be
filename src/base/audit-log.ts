@@ -1,5 +1,5 @@
-import IAuditLog from './types/audit-log.interface';
 import { Column, CreateDateColumn } from 'typeorm';
+import IAuditLog from './interfaces/audit-log.interface';
 
 export class AuditLog implements IAuditLog {
   @CreateDateColumn()
