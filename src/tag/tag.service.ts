@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './tag.entity';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class TagService {
@@ -9,8 +9,18 @@ export class TagService {
     @InjectRepository(Tag) private readonly tagRepository: Repository<Tag>,
   ) {}
 
-  async getOneByNameAsync(name: string): Promise<Tag> {
-    return await this.tagRepository.findOneBy({ name });
+  async getByNamesAsync(names: string[]): Promise<Tag[]> {
+    return await this.tagRepository
+      .createQueryBuilder('tag')
+      .where('tag.name IN (:...names)', { names })
+      .getMany();
+  }
+
+  async getByNameAsync(name: string): Promise<Tag[]> {
+    return await this.tagRepository
+      .createQueryBuilder('tag')
+      .where('tag.name ILIKE :name', { name: `%${name}%` })
+      .getMany();
   }
 
   async createAsync(name: string): Promise<Tag> {
@@ -32,5 +42,9 @@ export class TagService {
     await this.tagRepository.save(newTag);
 
     return newTag;
+  }
+
+  private async getOneByNameAsync(name: string): Promise<Tag> {
+    return await this.tagRepository.findOneBy({ name });
   }
 }
