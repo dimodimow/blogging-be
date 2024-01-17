@@ -19,9 +19,13 @@ export class BlogService {
 
   async createAsync(createBlogDto: CreateBlogDto): Promise<Blog> {
     const newBlog = this.blogRepository.create(createBlogDto);
-    const tags = await this.tagService.getByNamesAsync(createBlogDto.tagNames);
 
-    newBlog.tags = tags;
+    if (createBlogDto.tagNames?.length === 1) {
+      const tags = await this.tagService.getByNamesAsync(
+        createBlogDto.tagNames,
+      );
+      newBlog.tags = tags;
+    }
 
     await this.blogRepository.save(newBlog);
 
@@ -42,9 +46,12 @@ export class BlogService {
     const blog = await this.findOneByIdAsync(id);
     const updatedBlog = this.blogRepository.merge(blog, updateBlogDto);
 
-    const tags = await this.tagService.getByNamesAsync(updateBlogDto.tagNames);
-
-    updatedBlog.tags = tags;
+    if (updateBlogDto.tagNames?.length === 1) {
+      const tags = await this.tagService.getByNamesAsync(
+        updateBlogDto.tagNames,
+      );
+      updatedBlog.tags = tags;
+    }
     updatedBlog.modifiedOn = new Date();
 
     await this.blogRepository.save(updatedBlog);
