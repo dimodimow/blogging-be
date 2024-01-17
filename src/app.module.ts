@@ -9,6 +9,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TagModule } from './tag/tag.module';
 import * as Joi from '@hapi/joi';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './utils/exception-filters/http-exception-filter';
 
 @Module({
   imports: [
@@ -29,6 +31,12 @@ import * as Joi from '@hapi/joi';
     TagModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

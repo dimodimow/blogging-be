@@ -8,6 +8,7 @@ import { BlogFilter } from './blog.filter';
 import { TagService } from 'src/tag/tag.service';
 import { PaginationDto } from 'src/base/dto/pagination.dto';
 import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
+import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 
 @Injectable()
 export class BlogService {
@@ -27,8 +28,18 @@ export class BlogService {
     return newBlog;
   }
 
-  async updateAsync(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+  async findOneByIdAsync(id: string): Promise<Blog> {
     const blog = await this.blogRepository.findOneBy({ id });
+
+    if (!blog) {
+      throw new EntityNotFoundException('Blog', id);
+    }
+
+    return blog;
+  }
+
+  async updateAsync(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+    const blog = await this.findOneByIdAsync(id);
     const updatedBlog = this.blogRepository.merge(blog, updateBlogDto);
 
     const tags = await this.tagService.getByNamesAsync(updateBlogDto.tagNames);
@@ -67,10 +78,6 @@ export class BlogService {
     const pagesLeft = Math.ceil(count / limit) - page;
 
     return new FindAllPaginatedResultDto<Blog>(blogs, count, pagesLeft);
-  }
-
-  async findOneByIdAsync(id: string): Promise<Blog> {
-    return await this.blogRepository.findOneBy({ id });
   }
 
   async removeAsync(id: string): Promise<void> {

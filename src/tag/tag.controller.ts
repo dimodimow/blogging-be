@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Post,
+} from '@nestjs/common';
 import { TagService } from './tag.service';
 
 @Controller('tag')
@@ -12,6 +19,9 @@ export class TagController {
 
   @Get()
   async getByName(@Body('name') name: string) {
+    throw new NotFoundException('Tag not found', {
+      description: 'Tag not found',
+    });
     return await this.tagService.getByNameAsync(name);
   }
 
