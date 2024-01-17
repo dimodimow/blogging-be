@@ -15,7 +15,9 @@ import { BlogFilter } from './blog.filter';
 import { PaginationDto } from 'src/base/dto/pagination.dto';
 import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
 import { Blog } from './blog.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Blog')
 @Controller('blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}

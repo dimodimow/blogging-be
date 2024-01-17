@@ -13,12 +13,14 @@ import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/exception-filters/http-exception-filter';
 
 @Module({
+  controllers: [AppController],
   imports: [
     BlogModule,
     CommentModule,
     DatabaseModule,
     UserModule,
     AuthModule,
+    TagModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
@@ -28,9 +30,7 @@ import { HttpExceptionFilter } from './utils/exception-filters/http-exception-fi
         POSTGRES_DB: Joi.string().required(),
       }),
     }),
-    TagModule,
   ],
-  controllers: [AppController],
   providers: [
     AppService,
     {

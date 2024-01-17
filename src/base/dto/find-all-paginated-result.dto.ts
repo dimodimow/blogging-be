@@ -1,4 +1,3 @@
-import { Blog } from '../../blog/blog.entity';
 import { Base } from '../base.entity';
 
 export class FindAllPaginatedResultDto<Entity extends Base> {
