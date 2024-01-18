@@ -20,7 +20,7 @@ export class BlogService {
   async createAsync(createBlogDto: CreateBlogDto): Promise<Blog> {
     const newBlog = this.blogRepository.create(createBlogDto);
 
-    if (createBlogDto.tagNames?.length === 1) {
+    if (createBlogDto.tagNames?.length > 0) {
       const tags = await this.tagService.getByNamesAsync(
         createBlogDto.tagNames,
       );
@@ -36,7 +36,7 @@ export class BlogService {
     const blog = await this.blogRepository.findOneBy({ id });
 
     if (!blog) {
-      throw new EntityNotFoundException('Blog', id);
+      throw new EntityNotFoundException('Blog', 'id', id);
     }
 
     return blog;
@@ -46,12 +46,13 @@ export class BlogService {
     const blog = await this.findOneByIdAsync(id);
     const updatedBlog = this.blogRepository.merge(blog, updateBlogDto);
 
-    if (updateBlogDto.tagNames?.length === 1) {
+    if (updateBlogDto.tagNames?.length > 0) {
       const tags = await this.tagService.getByNamesAsync(
         updateBlogDto.tagNames,
       );
       updatedBlog.tags = tags;
     }
+
     updatedBlog.modifiedOn = new Date();
 
     await this.blogRepository.save(updatedBlog);

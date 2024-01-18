@@ -7,6 +7,8 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -16,6 +18,7 @@ import { PaginationDto } from 'src/base/dto/pagination.dto';
 import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
 import { Blog } from './blog.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 
 @ApiTags('Blog')
 @Controller('blog')
@@ -28,10 +31,13 @@ export class BlogController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async get(
     @Query() blogFilter: BlogFilter,
     @Query() paginationDto: PaginationDto,
+    @Request() req,
   ): Promise<FindAllPaginatedResultDto<Blog>> {
+    console.log(req.user);
     return await this.blogService.findAll(blogFilter, paginationDto);
   }
 
