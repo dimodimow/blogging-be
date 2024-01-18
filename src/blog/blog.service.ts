@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blog.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -9,15 +9,23 @@ import { TagService } from 'src/tag/tag.service';
 import { PaginationDto } from 'src/base/dto/pagination.dto';
 import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class BlogService {
   constructor(
     @InjectRepository(Blog) private blogRepository: Repository<Blog>,
     private readonly tagService: TagService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
-  async createAsync(createBlogDto: CreateBlogDto): Promise<Blog> {
+  async createAsync(
+    createBlogDto: CreateBlogDto,
+    userId: string,
+  ): Promise<Blog> {
+    const user = await this.userService.findOneByIdAsync(userId);
+
     const newBlog = this.blogRepository.create(createBlogDto);
 
     if (createBlogDto.tagNames?.length > 0) {
@@ -27,13 +35,21 @@ export class BlogService {
       newBlog.tags = tags;
     }
 
+    newBlog.user = user;
+
     await this.blogRepository.save(newBlog);
 
     return newBlog;
   }
 
   async findOneByIdAsync(id: string): Promise<Blog> {
-    const blog = await this.blogRepository.findOneBy({ id });
+    const blog = await this.blogRepository
+      .createQueryBuilder('blog')
+      .leftJoinAndSelect('blog.comments', 'comment')
+      .leftJoinAndSelect('blog.user', 'user')
+      .leftJoinAndSelect('blog.tags', 'tag')
+      .where('blog.id = :id', { id })
+      .getOne();
 
     if (!blog) {
       throw new EntityNotFoundException('Blog', 'id', id);

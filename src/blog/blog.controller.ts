@@ -22,22 +22,21 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 
 @ApiTags('Blog')
 @Controller('blog')
+@UseGuards(JwtAuthGuard)
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Post()
-  async create(@Body() createBlogDto: CreateBlogDto) {
-    return await this.blogService.createAsync(createBlogDto);
+  async create(@Body() createBlogDto: CreateBlogDto, @Request() req) {
+    const userId = req.userId;
+    return await this.blogService.createAsync(createBlogDto, userId);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async get(
     @Query() blogFilter: BlogFilter,
     @Query() paginationDto: PaginationDto,
-    @Request() req,
   ): Promise<FindAllPaginatedResultDto<Blog>> {
-    console.log(req.user);
     return await this.blogService.findAll(blogFilter, paginationDto);
   }
 

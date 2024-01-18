@@ -5,12 +5,15 @@ import {
   Get,
   NotFoundException,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { TagService } from './tag.service';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 
 @ApiTags('Tag')
 @Controller('tag')
+@UseGuards(JwtAuthGuard)
 export class TagController {
   constructor(private readonly tagService: TagService) {}
 
@@ -21,9 +24,6 @@ export class TagController {
 
   @Get()
   async getByName(@Body('name') name: string) {
-    throw new NotFoundException('Tag not found', {
-      description: 'Tag not found',
-    });
     return await this.tagService.getByNameAsync(name);
   }
 

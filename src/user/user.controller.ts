@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 
 @ApiTags('User')
 @Controller('user')
@@ -14,24 +24,22 @@ export class UserController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getByUsername(@Query('username') username: string) {
     return await this.userService.findByUsernameAsync(username);
   }
 
-  //todo: get id from token instead of username
   @Put('addFavorite')
-  async addFavorite(
-    @Query('username') username: string,
-    @Body('blogId') blogId: string,
-  ) {
-    return await this.userService.addFavoriteAsync(username, blogId);
+  @UseGuards(JwtAuthGuard)
+  async addFavorite(@Body('blogId') blogId: string, @Request() req) {
+    const userId = req.userId;
+    return await this.userService.addFavoriteAsync(userId, blogId);
   }
 
   @Put('removeFavorite')
-  async removeFavorite(
-    @Query('username') username: string,
-    @Body('blogId') blogId: string,
-  ) {
-    return await this.userService.removeFavoriteAsync(username, blogId);
+  @UseGuards(JwtAuthGuard)
+  async removeFavorite(@Body('blogId') blogId: string, @Request() req) {
+    const userId = req.userId;
+    return await this.userService.removeFavoriteAsync(userId, blogId);
   }
 }

@@ -1,13 +1,7 @@
 import { Base } from 'src/base/base.entity';
 import { Blog } from 'src/blog/blog.entity';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Comment } from 'src/comment/comment.entity';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 
 @Entity()
 export class User extends Base {
@@ -21,6 +15,9 @@ export class User extends Base {
   username: string;
 
   @Column()
+  email: string;
+
+  @Column()
   password: string;
 
   @OneToMany(() => Blog, (blog) => blog.user)
@@ -29,4 +26,7 @@ export class User extends Base {
   @ManyToMany(() => Blog)
   @JoinTable()
   favorites: Blog[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

@@ -4,19 +4,33 @@ import { Repository } from 'typeorm';
 import { Comment } from './comment.entity';
 import { BlogService } from 'src/blog/blog.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UserService } from 'src/user/user.service';
+import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectRepository(Comment) private commentRepository: Repository<Comment>,
     private readonly blogService: BlogService,
+    private readonly userService: UserService,
   ) {}
 
   async getByIdAsync(id: string): Promise<Comment> {
-    return await this.commentRepository.findOneBy({ id });
+    const comment = await this.commentRepository.findOneBy({ id });
+
+    if (!comment) {
+      throw new EntityNotFoundException('Comment', 'id', id);
+    }
+
+    return comment;
   }
 
-  async createAsync(createCommentDto: CreateCommentDto): Promise<Comment> {
+  async createAsync(
+    createCommentDto: CreateCommentDto,
+    userId: string,
+  ): Promise<Comment> {
+    const user = await this.userService.findOneByIdAsync(userId);
+
     const blog = await this.blogService.findOneByIdAsync(
       createCommentDto.blogId,
     );
@@ -27,6 +41,7 @@ export class CommentService {
 
     const newComment = this.commentRepository.create({
       blog,
+      user,
       content: createCommentDto.content,
     });
 
@@ -59,6 +74,7 @@ export class CommentService {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.blog', 'blog')
+      .leftJoinAndSelect('comment.user', 'user')
       .where('blog.id = :blogId', { blogId })
       .getMany();
 
@@ -67,10 +83,6 @@ export class CommentService {
 
   async removeAsync(id: string): Promise<void> {
     const comment = await this.getByIdAsync(id);
-
-    if (!comment) {
-      throw new Error('Comment not found');
-    }
 
     await this.commentRepository.remove(comment);
   }
