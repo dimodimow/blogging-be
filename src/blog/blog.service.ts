@@ -10,6 +10,8 @@ import { PaginationDto } from 'src/base/dto/pagination.dto';
 import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result.dto';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { UserService } from 'src/user/user.service';
+import { File } from 'src/file/file.entity';
+import { BLOG } from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class BlogService {
@@ -19,6 +21,13 @@ export class BlogService {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
+
+  async addFileToBlogAsync(file: File, blog: Blog) {
+    console.log(blog.files);
+
+    blog.files = [...blog.files, file];
+    await this.blogRepository.save(blog);
+  }
 
   async createAsync(
     createBlogDto: CreateBlogDto,
@@ -48,11 +57,12 @@ export class BlogService {
       .leftJoinAndSelect('blog.comments', 'comment')
       .leftJoinAndSelect('blog.user', 'user')
       .leftJoinAndSelect('blog.tags', 'tag')
+      .leftJoinAndSelect('blog.files', 'file')
       .where('blog.id = :id', { id })
       .getOne();
 
     if (!blog) {
-      throw new EntityNotFoundException('Blog', 'id', id);
+      throw new EntityNotFoundException(BLOG, 'id', id);
     }
 
     return blog;
@@ -108,7 +118,7 @@ export class BlogService {
     const blog = await this.findOneByIdAsync(id);
 
     if (!blog) {
-      throw new EntityNotFoundException('Blog', 'id', id);
+      throw new EntityNotFoundException(BLOG, 'id', id);
     }
 
     await this.blogRepository.remove(blog);

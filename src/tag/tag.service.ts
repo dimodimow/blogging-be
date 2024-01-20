@@ -3,6 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './tag.entity';
 import { Repository } from 'typeorm';
 import { BusinessException } from 'src/utils/exceptions/business.exception';
+import {
+  TAG_ALREADY_EXISTS,
+  TAG_NAME_MUST_START_WITH_HASH,
+  TAG_NAME_REQUIRED,
+} from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class TagService {
@@ -31,17 +36,17 @@ export class TagService {
 
   async createAsync(name: string): Promise<Tag> {
     if (!name) {
-      throw new BusinessException('Tag name is required');
+      throw new BusinessException(TAG_NAME_REQUIRED);
     }
 
     if (name[0] !== '#') {
-      throw new BusinessException('Tag name must start with #');
+      throw new BusinessException(TAG_NAME_MUST_START_WITH_HASH);
     }
 
     const existingTag = await this.getOneByNameAsync(name);
 
     if (existingTag) {
-      throw new BusinessException('Tag already exists');
+      throw new BusinessException(TAG_ALREADY_EXISTS);
     }
 
     const newTag = this.tagRepository.create({ name });

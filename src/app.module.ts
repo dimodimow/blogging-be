@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { BlogModule } from './blog/blog.module';
 import { CommentModule } from './comment/comment.module';
 import { DatabaseModule } from './database/database.module';
@@ -12,6 +11,8 @@ import * as Joi from '@hapi/joi';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/exception-filters/http-exception-filter';
 import { RoleModule } from './role/role.module';
+import { S3Module } from './s3/s3.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   controllers: [AppController],
@@ -23,6 +24,8 @@ import { RoleModule } from './role/role.module';
     UserModule,
     AuthModule,
     TagModule,
+    S3Module,
+    FileModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
@@ -34,7 +37,6 @@ import { RoleModule } from './role/role.module';
     }),
   ],
   providers: [
-    AppService,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,

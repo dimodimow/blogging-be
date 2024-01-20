@@ -45,17 +45,20 @@ export class BlogController {
   }
 
   @Get('findOneById/:id')
-  async findOneById(@Param('id') id: string) {
+  async findOneById(@Param('id') id: string): Promise<Blog> {
     return await this.blogService.findOneByIdAsync(id);
   }
 
   @Delete('delete/:id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string): Promise<void> {
     return await this.blogService.removeAsync(id);
   }
 
   @Put('update/:id')
-  async update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+  ): Promise<Blog> {
     return await this.blogService.updateAsync(id, updateBlogDto);
   }
 }

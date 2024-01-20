@@ -3,6 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './role.entity';
 import { Repository } from 'typeorm';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
+import { BusinessException } from 'src/utils/exceptions/business.exception';
+import {
+  ROLE,
+  ROLE_ALREADY_EXISTS,
+} from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class RoleService {
@@ -11,22 +16,28 @@ export class RoleService {
   ) {}
 
   async createAsync(name: string): Promise<Role> {
+    const roleExists = await this.roleRepository.findOneBy({ name });
+
+    if (roleExists) {
+      throw new BusinessException(ROLE_ALREADY_EXISTS);
+    }
+
     const newRole = this.roleRepository.create({ name });
 
     return await this.roleRepository.save(newRole);
   }
 
-  async deleteAsync(id: string): Promise<Role> {
+  async deleteAsync(id: string): Promise<void> {
     const role = await this.findOneByIdAsync(id);
 
-    return await this.roleRepository.remove(role);
+    await this.roleRepository.remove(role);
   }
 
   async findOneByNameAsync(name: string): Promise<Role> {
     const role = await this.roleRepository.findOneBy({ name });
 
     if (!role) {
-      throw new EntityNotFoundException('Role', 'name', name);
+      throw new EntityNotFoundException(ROLE, 'name', name);
     }
 
     return role;
@@ -36,7 +47,7 @@ export class RoleService {
     const role = await this.roleRepository.findOneBy({ id });
 
     if (!role) {
-      throw new EntityNotFoundException('Role', 'id', id);
+      throw new EntityNotFoundException(ROLE, 'id', id);
     }
 
     return role;

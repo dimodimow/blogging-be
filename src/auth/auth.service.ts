@@ -5,6 +5,10 @@ import { comparePassword } from 'src/utils/bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { SignInResponseDto } from './dto/sign-in-response.dto';
+import {
+  Invalid_Credentials,
+  USER,
+} from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class AuthService {
@@ -14,10 +18,10 @@ export class AuthService {
   ) {}
 
   async signIn(signInRequestDto: SignInRequestDto): Promise<SignInResponseDto> {
-    const { userId, userRoleNames } = await this.validateUser(signInRequestDto);
+    const { userId, username, userRoleNames } =
+      await this.validateUser(signInRequestDto);
 
-    const payload = { roles: userRoleNames, userId: userId };
-    console.log(payload);
+    const payload = { roles: userRoleNames, username, userId: userId };
     const accessToken = await this.jwtService.signAsync(payload);
 
     return new SignInResponseDto(accessToken);
@@ -25,14 +29,14 @@ export class AuthService {
 
   private async validateUser(
     signInRequestDto: SignInRequestDto,
-  ): Promise<{ userId: string; userRoleNames: string[] }> {
+  ): Promise<{ userId: string; username: string; userRoleNames: string[] }> {
     const user = await this.userService.findByUsernameAsync(
       signInRequestDto.username,
     );
 
     if (!user) {
       throw new EntityNotFoundException(
-        'User',
+        USER,
         'username',
         signInRequestDto.username,
       );
@@ -44,9 +48,13 @@ export class AuthService {
     );
 
     if (!arePasswordMatched) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(Invalid_Credentials);
     }
 
-    return { userId: user.id, userRoleNames: user.roles.map((r) => r.name) };
+    return {
+      userId: user.id,
+      username: user.username,
+      userRoleNames: user.roles.map((r) => r.name),
+    };
   }
 }

@@ -5,6 +5,7 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { Role } from 'src/utils/enums/role.enum';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
+import { Tag } from './tag.entity';
 
 @ApiTags('Tag')
 @Controller('tag')
@@ -14,19 +15,19 @@ export class TagController {
 
   @Post('create')
   @Roles(Role.Admin)
-  async create(@Body('name') name: string) {
+  async create(@Body('name') name: string): Promise<Tag> {
     return await this.tagService.createAsync(name);
   }
 
   @Get('getByName')
   @Roles(Role.Admin, Role.User)
-  async getByName(@Body('name') name: string) {
+  async getByName(@Body('name') name: string): Promise<Tag[]> {
     return await this.tagService.getByNameAsync(name);
   }
 
   @Delete()
   @Roles(Role.Admin)
-  async remove(@Body('names') names: string[]) {
+  async remove(@Body('names') names: string[]): Promise<void> {
     return await this.tagService.removeAsync(names);
   }
 }

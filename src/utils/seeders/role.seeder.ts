@@ -8,13 +8,13 @@ export class RoleSeeder {
   async seed() {
     try {
       await this.roleService.findOneByNameAsync('User');
-    } catch (error) {
+    } catch (_) {
       await this.roleService.createAsync('User');
     }
 
     try {
       await this.roleService.findOneByNameAsync('Admin');
-    } catch (error) {
+    } catch (_) {
       await this.roleService.createAsync('Admin');
     }
   }

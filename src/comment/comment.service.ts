@@ -6,6 +6,7 @@ import { BlogService } from 'src/blog/blog.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UserService } from 'src/user/user.service';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
+import { COMMENT } from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class CommentService {
@@ -19,7 +20,7 @@ export class CommentService {
     const comment = await this.commentRepository.findOneBy({ id });
 
     if (!comment) {
-      throw new EntityNotFoundException('Comment', 'id', id);
+      throw new EntityNotFoundException(COMMENT, 'id', id);
     }
 
     return comment;
@@ -57,8 +58,6 @@ export class CommentService {
   }
 
   async getByBlogIdAsync(blogId: string) {
-    const blog = await this.blogService.findOneByIdAsync(blogId);
-
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.blog', 'blog')

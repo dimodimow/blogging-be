@@ -1,5 +1,6 @@
 import { Base } from 'src/base/base.entity';
 import { Comment } from 'src/comment/comment.entity';
+import { File } from 'src/file/file.entity';
 import { Tag } from 'src/tag/tag.entity';
 import { User } from 'src/user/user.entity';
 import {
@@ -31,4 +32,7 @@ export class Blog extends Base {
   @ManyToMany(() => Tag)
   @JoinTable()
   tags: Tag[];
+
+  @OneToMany(() => File, (file) => file.blog)
+  files: File[];
 }

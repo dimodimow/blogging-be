@@ -8,6 +8,14 @@ import { BlogService } from 'src/blog/blog.service';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { BusinessException } from 'src/utils/exceptions/business.exception';
 import { RoleService } from 'src/role/role.service';
+import {
+  BLOG,
+  USER,
+  USER_ALREADY_HAS_THIS_ROLE,
+  USER_DOES_NOT_HAVE_THIS_ROLE,
+  USER_EMAIL_EXISTS,
+  USER_USERNAME_EXISTS,
+} from 'src/utils/constants/exception.constants';
 
 @Injectable()
 export class UserService {
@@ -26,7 +34,7 @@ export class UserService {
     });
 
     if (existingUserByEmail) {
-      throw new BusinessException('User with this email already exists');
+      throw new BusinessException(USER_EMAIL_EXISTS);
     }
 
     const existingUsername = await this.userRepository.findOneBy({
@@ -34,10 +42,10 @@ export class UserService {
     });
 
     if (existingUsername) {
-      throw new BusinessException('User with this username already exists');
+      throw new BusinessException(USER_USERNAME_EXISTS);
     }
 
-    const userRole = await this.roleService.findOneByNameAsync('User');
+    const userRole = await this.roleService.findOneByNameAsync(USER);
 
     const newUser = this.userRepository.create({
       ...createUserDto,
@@ -54,7 +62,7 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
-      throw new EntityNotFoundException('User', 'id', id);
+      throw new EntityNotFoundException(USER, 'id', id);
     }
 
     return user;
@@ -76,7 +84,7 @@ export class UserService {
     const blog = await this.blogService.findOneByIdAsync(blogId);
 
     if (!blog) {
-      throw new EntityNotFoundException('Blog', 'id', blogId);
+      throw new EntityNotFoundException(BLOG, 'id', blogId);
     }
 
     if (user.favorites.some((x) => x.id === blog.id)) {
@@ -94,7 +102,7 @@ export class UserService {
     const blog = await this.blogService.findOneByIdAsync(blogId);
 
     if (!blog) {
-      throw new EntityNotFoundException('Blog', 'id', blogId);
+      throw new EntityNotFoundException(BLOG, 'id', blogId);
     }
 
     user.favorites = user.favorites.filter((x) => x.id !== blog.id);
@@ -108,7 +116,7 @@ export class UserService {
     const role = await this.roleService.findOneByIdAsync(roleId);
 
     if (user.roles.some((x) => x.id === role.id)) {
-      throw new BusinessException('User already has this role');
+      throw new BusinessException(USER_ALREADY_HAS_THIS_ROLE);
     }
 
     user.roles = [...user.roles, role];
@@ -122,7 +130,7 @@ export class UserService {
     const role = await this.roleService.findOneByIdAsync(roleId);
 
     if (!user.roles.some((x) => x.id === role.id)) {
-      throw new BusinessException('User does not have this role');
+      throw new BusinessException(USER_DOES_NOT_HAVE_THIS_ROLE);
     }
 
     user.roles = user.roles.filter((x) => x.id !== role.id);

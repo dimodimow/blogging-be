@@ -40,7 +40,8 @@ export class CommentController {
     @Body() createCommentDto: CreateCommentDto,
     @Request() req,
   ): Promise<Comment> {
-    const userId = req.userId;
+    const { userId } = req.user;
+
     return await this.commentService.createAsync(createCommentDto, userId);
   }
 
@@ -54,7 +55,6 @@ export class CommentController {
 
   @Delete('delete/:id')
   async remove(@Param('id') id: string): Promise<void> {
-    console.log('id', id);
     return await this.commentService.removeAsync(id);
   }
 }
