@@ -17,7 +17,9 @@ import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { Role } from 'src/utils/enums/role.enum';
 import UploadFileDto from './dto/upload-file.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('S3')
 @Controller('s3')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.Admin, Role.User)
