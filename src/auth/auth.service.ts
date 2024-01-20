@@ -14,9 +14,10 @@ export class AuthService {
   ) {}
 
   async signIn(signInRequestDto: SignInRequestDto): Promise<SignInResponseDto> {
-    const { userId } = await this.validateUser(signInRequestDto);
-    const payload = { username: signInRequestDto.username, userId: userId };
+    const { userId, userRoleNames } = await this.validateUser(signInRequestDto);
 
+    const payload = { roles: userRoleNames, userId: userId };
+    console.log(payload);
     const accessToken = await this.jwtService.signAsync(payload);
 
     return new SignInResponseDto(accessToken);
@@ -24,7 +25,7 @@ export class AuthService {
 
   private async validateUser(
     signInRequestDto: SignInRequestDto,
-  ): Promise<{ userId: string }> {
+  ): Promise<{ userId: string; userRoleNames: string[] }> {
     const user = await this.userService.findByUsernameAsync(
       signInRequestDto.username,
     );
@@ -46,6 +47,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return { userId: user.id };
+    return { userId: user.id, userRoleNames: user.roles.map((r) => r.name) };
   }
 }
