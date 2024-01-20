@@ -11,10 +11,12 @@ import { TagModule } from './tag/tag.module';
 import * as Joi from '@hapi/joi';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/exception-filters/http-exception-filter';
+import { RoleModule } from './role/role.module';
 
 @Module({
   controllers: [AppController],
   imports: [
+    RoleModule,
     BlogModule,
     CommentModule,
     DatabaseModule,

@@ -19,10 +19,14 @@ import { FindAllPaginatedResultDto } from '../base/dto/find-all-paginated-result
 import { Blog } from './blog.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/utils/guards/roles.guard';
+import { Roles } from 'src/utils/decorators/roles.decorator';
+import { Role } from 'src/utils/enums/role.enum';
 
 @ApiTags('Blog')
 @Controller('blog')
-@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin, Role.User)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
@@ -32,7 +36,7 @@ export class BlogController {
     return await this.blogService.createAsync(createBlogDto, userId);
   }
 
-  @Get()
+  @Get('get')
   async get(
     @Query() blogFilter: BlogFilter,
     @Query() paginationDto: PaginationDto,
@@ -40,17 +44,17 @@ export class BlogController {
     return await this.blogService.findAll(blogFilter, paginationDto);
   }
 
-  @Get(':id')
+  @Get('findOneById/:id')
   async findOneById(@Param('id') id: string) {
     return await this.blogService.findOneByIdAsync(id);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   async delete(@Param('id') id: string) {
     return await this.blogService.removeAsync(id);
   }
 
-  @Put(':id')
+  @Put('update/:id')
   async update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
     return await this.blogService.updateAsync(id, updateBlogDto);
   }
