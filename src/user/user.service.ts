@@ -7,6 +7,7 @@ import { hashPassword } from 'src/utils/bcrypt';
 import { BlogService } from 'src/blog/blog.service';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { BusinessException } from 'src/utils/exceptions/business.exception';
+import { RoleService } from 'src/role/role.service';
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @Inject(forwardRef(() => BlogService))
     private readonly blogService: BlogService,
+    private readonly roleService: RoleService,
   ) {}
 
   async createAsync(createUserDto: CreateUserDto): Promise<User> {
@@ -35,7 +37,13 @@ export class UserService {
       throw new BusinessException('User with this username already exists');
     }
 
-    const newUser = this.userRepository.create({ ...createUserDto, password });
+    const userRole = await this.roleService.findOneByNameAsync('User');
+
+    const newUser = this.userRepository.create({
+      ...createUserDto,
+      password,
+      roles: [userRole],
+    });
 
     await this.userRepository.save(newUser);
 
@@ -57,6 +65,7 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.blogs', 'blog')
       .leftJoinAndSelect('user.favorites', 'favorite')
+      .leftJoinAndSelect('user.roles', 'role')
       .where('user.username = :username', { username })
       .getOne();
   }
@@ -89,6 +98,34 @@ export class UserService {
     }
 
     user.favorites = user.favorites.filter((x) => x.id !== blog.id);
+
+    await this.userRepository.save(user);
+  }
+
+  async addRoleToUserAsync(userId: string, roleId: string) {
+    const user = await this.findOneByIdAsync(userId);
+
+    const role = await this.roleService.findOneByIdAsync(roleId);
+
+    if (user.roles.some((x) => x.id === role.id)) {
+      throw new BusinessException('User already has this role');
+    }
+
+    user.roles = [...user.roles, role];
+
+    await this.userRepository.save(user);
+  }
+
+  async removeRoleFromUserAsync(userId: string, roleId: string) {
+    const user = await this.findOneByIdAsync(userId);
+
+    const role = await this.roleService.findOneByIdAsync(roleId);
+
+    if (!user.roles.some((x) => x.id === role.id)) {
+      throw new BusinessException('User does not have this role');
+    }
+
+    user.roles = user.roles.filter((x) => x.id !== role.id);
 
     await this.userRepository.save(user);
   }
