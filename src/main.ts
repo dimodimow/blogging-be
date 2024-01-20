@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { DtoValidationException } from './utils/exceptions/dto-validation.exception';
+import { RoleSeeder } from './utils/seeders/role.seeder';
 
 const port = process.env.PORT || 3000;
 
@@ -26,6 +27,8 @@ async function bootstrap() {
       },
     }),
   );
+
+  await app.get(RoleSeeder).seed();
 
   await app.listen(port);
 
