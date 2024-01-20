@@ -35,10 +35,6 @@ export class CommentService {
       createCommentDto.blogId,
     );
 
-    if (!blog) {
-      throw new Error('Blog not found');
-    }
-
     const newComment = this.commentRepository.create({
       blog,
       user,
@@ -52,10 +48,6 @@ export class CommentService {
   async updateAsync(id: string, content: string): Promise<Comment> {
     const comment = await this.getByIdAsync(id);
 
-    if (!comment) {
-      throw new Error('Comment not found');
-    }
-
     comment.content = content;
     comment.modifiedOn = new Date();
 
@@ -66,10 +58,6 @@ export class CommentService {
 
   async getByBlogIdAsync(blogId: string) {
     const blog = await this.blogService.findOneByIdAsync(blogId);
-
-    if (!blog) {
-      throw new Error('Blog not found');
-    }
 
     const comments = await this.commentRepository
       .createQueryBuilder('comment')

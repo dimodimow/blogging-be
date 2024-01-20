@@ -108,7 +108,7 @@ export class BlogService {
     const blog = await this.findOneByIdAsync(id);
 
     if (!blog) {
-      throw new Error('Blog not found');
+      throw new EntityNotFoundException('Blog', 'id', id);
     }
 
     await this.blogRepository.remove(blog);
