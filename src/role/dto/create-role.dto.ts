@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Length } from 'class-validator';
+import { IsNotEmpty, MaxLength } from 'class-validator';
 
 export default class CreateRoleDto {
   @ApiProperty()
   @IsNotEmpty()
-  @Length(1, 15)
+  @MaxLength(15)
   name: string;
 }

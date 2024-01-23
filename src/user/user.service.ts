@@ -65,6 +65,7 @@ export class UserService {
       .leftJoinAndSelect('user.blogs', 'blog')
       .leftJoinAndSelect('user.favorites', 'favorite')
       .leftJoinAndSelect('user.roles', 'role')
+      .where('user.id = :id', { id })
       .getOne();
 
     if (!user) {
@@ -111,12 +112,14 @@ export class UserService {
   async addRolesToUserAsync(
     addRolesToUserDto: AddRolesToUserDto,
   ): Promise<void> {
+    console.log(addRolesToUserDto.userId);
     const user = await this.findOneByIdAsync(addRolesToUserDto.userId);
-
+    console.log(user);
     const roles = await this.roleService.findByIdsAsync(
       addRolesToUserDto.roleIds,
     );
-
+    console.log(roles);
+    console.log(user.roles);
     const newRoles = roles.filter(
       (role) => !user.roles.some((x) => x.id === role.id),
     );
@@ -126,7 +129,6 @@ export class UserService {
     }
 
     user.roles = [...user.roles, ...newRoles];
-
     await this.userRepository.save(user);
   }
 

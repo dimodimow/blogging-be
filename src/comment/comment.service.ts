@@ -17,8 +17,12 @@ export class CommentService {
     private readonly userService: UserService,
   ) {}
 
-  async getByIdAsync(id: string): Promise<Comment> {
-    const comment = await this.commentRepository.findOneBy({ id });
+  async findByIdAsync(id: string): Promise<Comment> {
+    const comment = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .where('comment.id = :id', { id })
+      .getOne();
 
     if (!comment) {
       throw new EntityNotFoundException(COMMENT, 'id', id);
@@ -50,7 +54,7 @@ export class CommentService {
     id: string,
     commentRequestDto: CommentRequestDto,
   ): Promise<CommentDto> {
-    const comment = await this.getByIdAsync(id);
+    const comment = await this.findByIdAsync(id);
 
     comment.content = commentRequestDto.content;
     comment.modifiedOn = new Date();
@@ -60,7 +64,7 @@ export class CommentService {
     return new CommentDto(comment);
   }
 
-  async getByBlogIdAsync(blogId: string): Promise<CommentDto[]> {
+  async findByBlogIdAsync(blogId: string): Promise<CommentDto[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.blog', 'blog')
@@ -72,7 +76,7 @@ export class CommentService {
   }
 
   async removeAsync(id: string): Promise<void> {
-    const comment = await this.getByIdAsync(id);
+    const comment = await this.findByIdAsync(id);
 
     await this.commentRepository.remove(comment);
   }

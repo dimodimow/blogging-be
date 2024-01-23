@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +13,6 @@ import { CommentService } from './comment.service';
 import { CommentRequestDto } from './dto/comment-request.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/utils/guards/jwt-auth.guard';
-import { Comment } from './comment.entity';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorators/roles.decorator';
 import { Role } from 'src/utils/enums/role.enum';
@@ -28,14 +26,14 @@ import { CommentDto } from './dto/comment.dto';
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Get('getByBlogId/:blogId')
-  async getByBlogId(@Param('blogId') blogId: string): Promise<CommentDto[]> {
-    return await this.commentService.getByBlogIdAsync(blogId);
+  @Get('findByBlogId/:blogId')
+  async findByBlogId(@Param('blogId') blogId: string): Promise<CommentDto[]> {
+    return await this.commentService.findByBlogIdAsync(blogId);
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<CommentDto> {
-    return new CommentDto(await this.commentService.getByIdAsync(id));
+  async findById(@Param('id') id: string): Promise<CommentDto> {
+    return new CommentDto(await this.commentService.findByIdAsync(id));
   }
 
   @Post('create/:blogId')

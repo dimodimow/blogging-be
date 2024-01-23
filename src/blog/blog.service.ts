@@ -140,7 +140,7 @@ export class BlogService {
     filter: BlogFilter,
   ): void {
     if (filter.title) {
-      queryBuilder.andWhere('blog.title like :title', {
+      queryBuilder.andWhere('blog.title ILIKE :title', {
         title: `%${filter.title}%`,
       });
     }
