@@ -99,8 +99,7 @@ export class BlogService {
       .createQueryBuilder('blog')
       .leftJoin('blog.user', 'user')
       .addSelect(['user.id', 'user.username'])
-      .leftJoin('blog.tags', 'tag')
-      .addSelect('tag.name');
+      .leftJoinAndSelect('blog.tags', 'tag');
 
     this.filterBlogs(query, blogFilter);
 
@@ -117,7 +116,7 @@ export class BlogService {
 
     const pagesLeft = Math.ceil(count / limit) - page;
 
-    const blogDtos = blogs.map((blog) => new BlogOverviewDto(blog));
+    const blogDtos = blogs?.map((blog) => new BlogOverviewDto(blog));
 
     return new FindAllPaginatedResultDto<BlogOverviewDto>(
       blogDtos,

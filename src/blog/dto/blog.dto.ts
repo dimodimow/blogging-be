@@ -9,9 +9,9 @@ export class BlogDto {
     this.content = blog.content;
     this.published = blog.published;
     this.user = new UserBaseDto(blog.user);
-    this.tags = blog.tags.map((tag) => tag.name);
-    this.fileUrls = blog.files.map((file) => file.url);
-    this.comments = blog.comments.map((comment) => new CommentDto(comment));
+    this.tags = blog.tags?.map((tag) => tag.name);
+    this.fileUrls = blog.files?.map((file) => file.url);
+    this.comments = blog.comments?.map((comment) => new CommentDto(comment));
   }
 
   id: string;

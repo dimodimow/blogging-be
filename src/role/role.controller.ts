@@ -12,7 +12,7 @@ import { RoleDto } from './dto/role.dto';
 
 @ApiTags('Role')
 @ApiBearerAuth()
-@Roles(Role.Admin, Role.User)
+@Roles(Role.Admin)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('role')
 export class RoleController {

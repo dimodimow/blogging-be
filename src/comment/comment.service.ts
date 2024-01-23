@@ -68,7 +68,7 @@ export class CommentService {
       .where('blog.id = :blogId', { blogId })
       .getMany();
 
-    return comments.map((comment) => new CommentDto(comment));
+    return comments?.map((comment) => new CommentDto(comment));
   }
 
   async removeAsync(id: string): Promise<void> {
