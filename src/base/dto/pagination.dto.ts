@@ -1,8 +1,9 @@
-import { Min } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginationDto {
-  @Min(1, { message: 'Page must be greater than 0' })
-  page: number;
-  @Min(5, { message: 'Limit must be minimum 5' })
+  @ApiProperty({ default: 1 })
+  page: number = 1;
+
+  @ApiProperty({ default: 10 })
   limit: number = 10;
 }

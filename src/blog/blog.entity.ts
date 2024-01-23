@@ -17,7 +17,7 @@ export class Blog extends Base {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   content: string;
 
   @Column({ default: false })

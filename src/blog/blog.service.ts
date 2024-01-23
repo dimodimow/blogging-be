@@ -12,6 +12,8 @@ import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.e
 import { UserService } from 'src/user/user.service';
 import { File } from 'src/file/file.entity';
 import { BLOG } from 'src/utils/constants/exception.constants';
+import { BlogDto } from './dto/blog.dto';
+import { BlogOverviewDto } from './dto/blog-overview.dto';
 
 @Injectable()
 export class BlogService {
@@ -23,8 +25,6 @@ export class BlogService {
   ) {}
 
   async addFileToBlogAsync(file: File, blog: Blog) {
-    console.log(blog.files);
-
     blog.files = [...blog.files, file];
     await this.blogRepository.save(blog);
   }
@@ -32,7 +32,7 @@ export class BlogService {
   async createAsync(
     createBlogDto: CreateBlogDto,
     userId: string,
-  ): Promise<Blog> {
+  ): Promise<BlogDto> {
     const user = await this.userService.findOneByIdAsync(userId);
 
     const newBlog = this.blogRepository.create(createBlogDto);
@@ -48,13 +48,15 @@ export class BlogService {
 
     await this.blogRepository.save(newBlog);
 
-    return newBlog;
+    return new BlogDto(newBlog);
   }
 
   async findOneByIdAsync(id: string): Promise<Blog> {
     const blog = await this.blogRepository
       .createQueryBuilder('blog')
       .leftJoinAndSelect('blog.comments', 'comment')
+      .leftJoin('comment.user', 'commentUser')
+      .addSelect(['commentUser.id', 'commentUser.username'])
       .leftJoinAndSelect('blog.user', 'user')
       .leftJoinAndSelect('blog.tags', 'tag')
       .leftJoinAndSelect('blog.files', 'file')
@@ -68,7 +70,10 @@ export class BlogService {
     return blog;
   }
 
-  async updateAsync(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+  async updateAsync(
+    id: string,
+    updateBlogDto: UpdateBlogDto,
+  ): Promise<BlogDto> {
     const blog = await this.findOneByIdAsync(id);
     const updatedBlog = this.blogRepository.merge(blog, updateBlogDto);
 
@@ -83,18 +88,19 @@ export class BlogService {
 
     await this.blogRepository.save(updatedBlog);
 
-    return updatedBlog;
+    return new BlogDto(updatedBlog);
   }
 
-  async findAll(
+  async find(
     blogFilter: BlogFilter,
     paginationDto: PaginationDto,
-  ): Promise<FindAllPaginatedResultDto<Blog>> {
+  ): Promise<FindAllPaginatedResultDto<BlogOverviewDto>> {
     const query = this.blogRepository
       .createQueryBuilder('blog')
-      .leftJoinAndSelect('blog.comments', 'comment')
-      .leftJoinAndSelect('blog.user', 'user')
-      .leftJoinAndSelect('blog.tags', 'tag');
+      .leftJoin('blog.user', 'user')
+      .addSelect(['user.id', 'user.username'])
+      .leftJoin('blog.tags', 'tag')
+      .addSelect('tag.name');
 
     this.filterBlogs(query, blogFilter);
 
@@ -111,7 +117,13 @@ export class BlogService {
 
     const pagesLeft = Math.ceil(count / limit) - page;
 
-    return new FindAllPaginatedResultDto<Blog>(blogs, count, pagesLeft);
+    const blogDtos = blogs.map((blog) => new BlogOverviewDto(blog));
+
+    return new FindAllPaginatedResultDto<BlogOverviewDto>(
+      blogDtos,
+      count,
+      pagesLeft,
+    );
   }
 
   async removeAsync(id: string): Promise<void> {

@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './comment.entity';
 import { BlogService } from 'src/blog/blog.service';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { CommentRequestDto } from './dto/comment-request.dto';
 import { UserService } from 'src/user/user.service';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { COMMENT } from 'src/utils/constants/exception.constants';
+import { CommentDto } from './dto/comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -27,45 +28,47 @@ export class CommentService {
   }
 
   async createAsync(
-    createCommentDto: CreateCommentDto,
+    commentRequestDto: CommentRequestDto,
     userId: string,
-  ): Promise<Comment> {
+    blogId: string,
+  ): Promise<CommentDto> {
     const user = await this.userService.findOneByIdAsync(userId);
 
-    const blog = await this.blogService.findOneByIdAsync(
-      createCommentDto.blogId,
-    );
+    const blog = await this.blogService.findOneByIdAsync(blogId);
 
     const newComment = this.commentRepository.create({
       blog,
       user,
-      content: createCommentDto.content,
+      content: commentRequestDto.content,
     });
 
     await this.commentRepository.save(newComment);
-    return newComment;
+    return new CommentDto(newComment);
   }
 
-  async updateAsync(id: string, content: string): Promise<Comment> {
+  async updateAsync(
+    id: string,
+    commentRequestDto: CommentRequestDto,
+  ): Promise<CommentDto> {
     const comment = await this.getByIdAsync(id);
 
-    comment.content = content;
+    comment.content = commentRequestDto.content;
     comment.modifiedOn = new Date();
 
     await this.commentRepository.save(comment);
 
-    return comment;
+    return new CommentDto(comment);
   }
 
-  async getByBlogIdAsync(blogId: string) {
+  async getByBlogIdAsync(blogId: string): Promise<CommentDto[]> {
     const comments = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoin('comment.blog', 'blog')
-      .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndSelect('comment.user', 'user.username')
       .where('blog.id = :blogId', { blogId })
       .getMany();
 
-    return comments;
+    return comments.map((comment) => new CommentDto(comment));
   }
 
   async removeAsync(id: string): Promise<void> {

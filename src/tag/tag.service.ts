@@ -22,7 +22,7 @@ export class TagService {
       .getMany();
   }
 
-  async getByNameAsync(name: string): Promise<Tag[]> {
+  async getAsync(name: string): Promise<Tag[]> {
     const query = this.tagRepository.createQueryBuilder('tag');
 
     if (name) {

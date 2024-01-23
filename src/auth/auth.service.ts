@@ -9,6 +9,7 @@ import {
   Invalid_Credentials,
   USER,
 } from 'src/utils/constants/exception.constants';
+import { BusinessException } from 'src/utils/exceptions/business.exception';
 
 @Injectable()
 export class AuthService {
@@ -48,7 +49,7 @@ export class AuthService {
     );
 
     if (!arePasswordMatched) {
-      throw new UnauthorizedException(Invalid_Credentials);
+      throw new BusinessException(Invalid_Credentials);
     }
 
     return {

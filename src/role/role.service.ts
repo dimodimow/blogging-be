@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './role.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { EntityNotFoundException } from 'src/utils/exceptions/entity-not-found.exception';
 import { BusinessException } from 'src/utils/exceptions/business.exception';
 import {
   ROLE,
   ROLE_ALREADY_EXISTS,
 } from 'src/utils/constants/exception.constants';
+import { RoleDto } from './dto/role.dto';
 
 @Injectable()
 export class RoleService {
@@ -15,7 +16,7 @@ export class RoleService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
 
-  async createAsync(name: string): Promise<Role> {
+  async createAsync(name: string): Promise<RoleDto> {
     const roleExists = await this.roleRepository.findOneBy({ name });
 
     if (roleExists) {
@@ -23,8 +24,9 @@ export class RoleService {
     }
 
     const newRole = this.roleRepository.create({ name });
+    await this.roleRepository.save(newRole);
 
-    return await this.roleRepository.save(newRole);
+    return newRole;
   }
 
   async deleteAsync(id: string): Promise<void> {
@@ -43,6 +45,10 @@ export class RoleService {
     return role;
   }
 
+  async findByIdsAsync(ids: string[]): Promise<Role[]> {
+    return await this.roleRepository.findBy({ id: In(ids) });
+  }
+
   async findOneByIdAsync(id: string): Promise<Role> {
     const role = await this.roleRepository.findOneBy({ id });
 
@@ -51,5 +57,11 @@ export class RoleService {
     }
 
     return role;
+  }
+
+  async findAsync(): Promise<RoleDto[]> {
+    const roles = await this.roleRepository.find();
+
+    return roles.map((role) => new RoleDto(role));
   }
 }
